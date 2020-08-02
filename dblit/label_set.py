@@ -3,8 +3,8 @@ from sqlalchemy import Column, String, Integer
 from dblit.base import Base
 
 
-class User(Base):
-    __tablename__ = 'user'
+class LabelSet(Base):
+    __tablename__ = 'label_set'
 
     id = Column(Integer, primary_key=True)
     code = Column(String)
