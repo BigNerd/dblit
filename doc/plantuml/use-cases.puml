@@ -8,29 +8,27 @@
 
 ' use cases
 
-(Create User) as (create_user)
-(Create Label Set) as (create_label_set)
-(Create Label Set Items) as (create_items)
-(Create Label Set Jobs) as (create_jobs)
-(Progress Label Set Job) as (progress_job)
-(Select Label Set Job Results) as (select_results)
+(Create Users) as (create_users)
+(Create Label Sets) as (create_label_sets)
+(Create Jobs) as (create_jobs)
+(Assign Jobs) as (assign_jobs)
+(Progress Jobs) as (progress_jobs)
+(Select Job Results) as (select_job_results)
 
 ' dependency relationships
-(create_items) .up.> (create_label_set)
-(create_jobs) ..> (create_user)
-(create_jobs) ..> (create_items)
-(progress_job) ..> (create_jobs)
-(select_results) ..> (create_items)
+(create_jobs) .up.> (create_label_sets)
+(assign_jobs) ..> (create_users)
+(assign_jobs) ..> (create_jobs)
+(progress_jobs) ..> (assign_jobs)
+(select_job_results) ..> (create_jobs)
 
 ' usage relationships
 
-Admin ---> (create_user)
-Admin ---> (create_label_set)
-ML ---> (create_items)
-Admin ---> (create_jobs)
-
-User -up-> (progress_job)
-
-ML ---> (select_results)
+Admin ---> (create_users)
+Admin ---> (create_label_sets)
+ML ---> (create_jobs)
+Admin ---> (assign_jobs)
+User -up-> (progress_jobs)
+ML ---> (select_job_results)
 
 @enduml

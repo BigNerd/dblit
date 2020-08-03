@@ -35,11 +35,10 @@ class App:
 
     def __create_schema(self):
         from dblit.base import Base
+        from dblit.item import Item
+        from dblit.job import Job
         from dblit.label import Label
-        from dblit.label_job import LabelJob
-        from dblit.label_job_item import LabelJobItem
         from dblit.label_set import LabelSet
-        from dblit.label_set_item import LabelSetItem
         from dblit.user import User
 
         Base.metadata.create_all(self.__engine)

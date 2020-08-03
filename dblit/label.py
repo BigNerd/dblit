@@ -1,5 +1,5 @@
 from sqlalchemy import Column, ForeignKey, String, Integer, UniqueConstraint
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
 
 from dblit.base import Base
 
@@ -23,3 +23,13 @@ class Label(Base):
         self.code = code
         self.name = name
         self.label_set = label_set
+
+    @validates('code')
+    def validate_code(self, key, code: str):
+        assert code is not None and len(code) > 0
+        return code
+
+    @validates('name')
+    def validate_code(self, key, name: str):
+        assert name is not None and len(name) > 0
+        return name
