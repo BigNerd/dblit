@@ -89,12 +89,14 @@ class TestUseCases(TestCase):
             for job in jobs:
                 label_set: LabelSet = self.session.query(LabelSet).filter_by(id=job.label_set_id).first()
                 default_label: Label = self.session.query(Label).filter_by(id=job.default_label_id).first()
-                items: List[Item] = self.session.query(Item).filter_by(job_id=job.id).all()
+                items: List[Item] = job.items
+                items.sort(key=lambda _item: _item.id)  # ascending order required for correct current_item_index update
                 for item in items:
                     random_override_label_index: int = randint(0, len(label_set.labels) - 1)
                     item.override_label = label_set.labels[random_override_label_index]
                     if item.override_label.id == default_label.id:
                         item.override_label = None  # no need to set the default as override, so undo
+                    job.current_item_index = items.index(item)
         self.session.commit()
 
     def select_job_results(self):
