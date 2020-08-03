@@ -39,13 +39,13 @@ label_set_item_id
 override_label_id
 }
 
-Label "1..n" -- "1" LabelSet
-LabelJob "0..n" -- "1" LabelSet
-LabelJob "0..n" -- "1" User
-LabelJob "1" -- "0..n" LabelJobItem
-LabelJobItem "0..n" -- "1" LabelSetItem
+Label "1..n" <--> "1" LabelSet
+LabelJob "0..n" --> "1" LabelSet
+LabelJob "0..n" <--> "1" User
+LabelJob "1" <--> "0..n" LabelJobItem
+LabelJobItem "0..n" --> "1" LabelSetItem
 
-LabelSetItem "0..n" -- "1" Label
-LabelJobItem "0..n" -- "0..1" Label
+LabelSetItem "0..n" --> "1" Label
+LabelJobItem "0..n" --> "0..1" Label
 
 @enduml

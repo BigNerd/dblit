@@ -12,13 +12,13 @@ class LabelJob(Base):
 
     id = Column(Integer, primary_key=True)
 
-    user_id = Column(Integer, ForeignKey('user.id'))
-    user = relationship("User", back_populates="label_jobs")
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    user = relationship("User", backref="label_jobs")
 
-    label_set_id = Column(Integer, ForeignKey('label_set.id'))
-    label_set: LabelSet = relationship("LabelSet")
+    label_set_id = Column(Integer, ForeignKey('label_set.id'), nullable=False)
+    label_set: LabelSet = relationship("LabelSet")  # no backref!
 
-    current_label_job_item_number = Column(Integer, default=0)
+    current_label_job_item_number = Column(Integer, default=0, nullable=False)
 
     def __init__(self, user: User, label_set: LabelSet):
         self.user = user
@@ -28,6 +28,3 @@ class LabelJob(Base):
     def validate_current_label_job_item_number(self, key, current_label_job_item_number):
         assert 0 <= current_label_job_item_number < len(self.label_job_items)
         return current_label_job_item_number
-
-
-User.label_jobs = relationship("LabelJob", order_by=LabelJob.id, back_populates="user")
