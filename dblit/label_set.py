@@ -8,7 +8,7 @@ class LabelSet(Base):
     __tablename__ = 'label_set'
 
     id = Column(Integer, primary_key=True)
-    code: str = Column(String, nullable=False, unique=True)
+    code: str = Column(String(100), nullable=False, unique=True)
 
     def __init__(self, code: str):
         self.code = code

@@ -9,8 +9,8 @@ class Label(Base):
     __tablename__ = 'label'
 
     id = Column(Integer, primary_key=True)
-    code = Column(String, nullable=False)
-    name = Column(String, nullable=False)
+    code = Column(String(100), nullable=False)
+    name = Column(String(100), nullable=False)
 
     label_set_id = Column(Integer, ForeignKey('label_set.id'), nullable=False)
     label_set = relationship("LabelSet", backref="labels")

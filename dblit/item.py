@@ -17,7 +17,7 @@ class Item(Base):
     job_id = Column(Integer, ForeignKey('job.id'), nullable=False)
     job: Job = relationship("Job", backref="items")
 
-    uri = Column(String, nullable=False)
+    uri = Column(String(4096), nullable=False)
 
     override_label_id = Column(Integer, ForeignKey('label.id'), nullable=True)
     override_label: Optional[Label] = relationship("Label")  # no backref!
