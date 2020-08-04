@@ -41,4 +41,4 @@ class Job(Base):
         return default_label
 
     def name(self) -> str:
-        return f"{self.label_set.name}-{self.id}"
+        return f"{self.label_set.code}/{self.id}"

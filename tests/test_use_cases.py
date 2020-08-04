@@ -86,10 +86,10 @@ class TestUseCases(TestCase):
     def progress_jobs(self):
         for user_code in self.user_codes:
             user: User = self.session.query(User).filter_by(code=user_code).first()
-            jobs: List[Job] = self.session.query(Job).filter_by(user_id=user.id).all()
-            for job in jobs:
-                label_set: LabelSet = self.session.query(LabelSet).filter_by(id=job.label_set_id).first()
-                default_label: Label = self.session.query(Label).filter_by(id=job.default_label_id).first()
+            for job in user.jobs:
+                print(f"progressing job {job.name()}")
+                label_set: LabelSet = job.label_set
+                default_label: Label = job.default_label
                 items: List[Item] = job.items
                 items.sort(key=lambda _item: _item.id)  # ascending order required for correct current_item_index update
                 for item in items:
