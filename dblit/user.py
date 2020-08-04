@@ -8,10 +8,18 @@ class User(Base):
     __tablename__ = 'user'
 
     id = Column(Integer, primary_key=True)
-    code = Column(String, nullable=False, unique=True)
+    code: str = Column(String, nullable=False, unique=True)
 
-    def __init__(self, code):
+    def __init__(self, code: str):
         self.code = code
+
+    @classmethod
+    def find_or_create(cls, session, code: str):
+        user = session.query(cls).filter_by(code=code).first()
+        if user is None:
+            user = cls(code=code)
+            session.add(user)
+        return user
 
     @validates('code')
     def validate_code(self, key, code: str):

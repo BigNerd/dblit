@@ -13,6 +13,14 @@ class LabelSet(Base):
     def __init__(self, code: str):
         self.code = code
 
+    @classmethod
+    def find_or_create(cls, session, code: str):
+        label_set = session.query(cls).filter_by(code=code).first()
+        if label_set is None:
+            label_set = cls(code=code)
+            session.add(label_set)
+        return label_set
+
     @validates('code')
     def validate_code(self, key, code: str):
         assert code is not None and len(code) > 0

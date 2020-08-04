@@ -12,12 +12,12 @@ from dblit.user import User
 
 class TestUseCases(TestCase):
 
-    user_codes = (
+    user_codes = (  # user-code
         "daisy.duck",
         "donald.duck"
     )
 
-    label_sets = (
+    label_sets = (  # label-set-code, label-codes
         ("animals",
             ("duck", "goose")
          ),
@@ -26,7 +26,7 @@ class TestUseCases(TestCase):
          )
     )
 
-    item_groups = (
+    item_groups = (  # label-set-code, label-code, uris
         ("animals", "duck", ("urn:1", "urn:2", "urn:3")),
         ("animals", "goose", ("urn:4", "urn:5", "urn:6")),
         ("plants", "flower", ("urn:7", "urn:8", "urn:9")),
@@ -34,52 +34,53 @@ class TestUseCases(TestCase):
     )
 
     def setUp(self) -> None:
-        connect_string = "sqlite:///:memory:?cache=shared"
+        connect_string = "sqlite:///:memory:"
         self.app = App(connect_string=connect_string)
         self.session = self.app.create_session()
 
     def test_use_cases(self):
-        self.create_label_sets()
-        self.create_jobs()
-        self.create_users()
-        self.assign_jobs()
-        self.progress_jobs()
-        self.select_job_results()
+        for iteration in range(2):  # execute each step twice to check their idempotency
+            self.create_label_sets()
+            self.create_jobs()
+            self.create_users()
+            self.assign_jobs()
+            self.progress_jobs()
+            self.select_job_results()
 
     def create_label_sets(self):
         for label_set_code, label_codes in self.label_sets:
-            label_set = LabelSet(code=label_set_code)
+            label_set = LabelSet.find_or_create(session=self.session, code=label_set_code)
             for label_code in label_codes:
-                _ = Label(code=label_code, name=label_code, label_set=label_set)
-            self.session.add(label_set)
+                _ = Label.find_or_create(session=self.session, code=label_code, name=label_code, label_set=label_set)
         self.session.commit()
 
-    def create_jobs(self):
+    def create_jobs(self, max_items_per_job: int = 2):
         for label_set_code, default_label_code, uris in self.item_groups:
             label_set: LabelSet = self.session.query(LabelSet).filter_by(code=label_set_code).first()
             default_label: Label = self.session.query(Label).filter_by(
                 code=default_label_code, label_set_id=label_set.id).first()
-            job = Job(label_set=label_set, default_label=default_label)
-            self.session.add(job)
+            job: Optional[Job] = None
             for uri in uris:
-                _ = Item(job=job, uri=uri)
+                items = Item.find_all_by_label_set_and_uri(session=self.session, label_set=label_set, uri=uri)
+                if len(items) == 0:  # here, we only want one item per label set and uri to be worked on
+                    if job is None or len(job.items) >= max_items_per_job:
+                        job = Job(label_set=label_set, default_label=default_label)
+                        self.session.add(job)
+                    _ = Item(job=job, uri=uri)
         self.session.commit()
 
     def create_users(self):
         for user_code in self.user_codes:
-            user = User(code=user_code)
-            self.session.add(user)
+            _ = User.find_or_create(session=self.session, code=user_code)
         self.session.commit()
 
     def assign_jobs(self):
-        selected_users: List[User] = self.session.query(User).all()
-        self.assertEqual(len(self.user_codes), len(selected_users))
+        all_users: List[User] = self.session.query(User).all()
+        self.assertEqual(len(self.user_codes), len(all_users))
 
-        selected_jobs: List[Job] = self.session.query(Job).all()
-        self.assertTrue(len(self.item_groups) <= len(selected_jobs))
-
-        for index, job in enumerate(selected_jobs):
-            job.user = selected_users[index % len(selected_users)]
+        unassigned_jobs: List[Job] = self.session.query(Job).filter_by(user_id=None).all()
+        for index, job in enumerate(unassigned_jobs):
+            job.user = all_users[index % len(all_users)]
         self.session.commit()
 
     def progress_jobs(self):
