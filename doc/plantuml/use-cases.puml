@@ -16,11 +16,12 @@
 (Select Job Results) as (select_job_results)
 
 ' dependency relationships
-(create_jobs) .up.> (create_label_sets)
-(assign_jobs) ..> (create_users)
-(assign_jobs) ..> (create_jobs)
-(progress_jobs) ..> (assign_jobs)
-(select_job_results) ..> (create_jobs)
+
+(create_jobs) .up.> (create_label_sets) : requires
+(assign_jobs) ..> (create_users) : requires
+(assign_jobs) ..> (create_jobs) : requires
+(progress_jobs) ..> (assign_jobs) : requires
+(select_job_results) ..> (create_jobs) : requires
 
 ' usage relationships
 
